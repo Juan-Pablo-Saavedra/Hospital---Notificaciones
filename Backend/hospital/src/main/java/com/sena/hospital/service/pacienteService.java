@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,7 +16,7 @@ public class pacienteService {
     @Autowired
     private Ipaciente pacienteRepository;
     
-    // Método privado para convertir la entidad 'paciente' al DTO 'pacienteDTO'
+    // Convierte la entidad 'paciente' al DTO 'pacienteDTO'
     private pacienteDTO convertToDto(paciente p) {
         pacienteDTO dto = new pacienteDTO();
         dto.setId(p.getId());
@@ -26,7 +27,7 @@ public class pacienteService {
         return dto;
     }
     
-    // Método privado para convertir el DTO 'pacienteDTO' a la entidad 'paciente'
+    // Convierte el DTO 'pacienteDTO' a la entidad 'paciente'
     // No se asigna el ID porque este lo genera la base de datos
     private paciente convertToEntity(pacienteDTO dto) {
         paciente p = new paciente();
@@ -53,40 +54,68 @@ public class pacienteService {
     
     // Crea un nuevo paciente con los datos proporcionados en el DTO
     public pacienteDTO createPaciente(pacienteDTO pacienteDto) {
-        paciente p = convertToEntity(pacienteDto);
-        p = pacienteRepository.save(p);
-        return convertToDto(p);
+        try {
+            paciente p = convertToEntity(pacienteDto);
+            p = pacienteRepository.save(p);
+            return convertToDto(p);
+        } catch (DataIntegrityViolationException e) {
+            // Mostrar mensaje minimal en consola
+            System.err.println("Error: Duplicate entry for email or invalid phone format.");
+            // Lanzar una excepción con mensaje amigable para el usuario
+            throw new RuntimeException("El correo ya existe o el teléfono no cumple el formato.");
+        } catch (Exception e) {
+            System.err.println("Error creando paciente: " + e.getMessage());
+            throw new RuntimeException("Error realizando el registro del paciente.");
+        }
     }
     
-    // Actualiza un paciente existente según su ID y los datos proporcionados en el DTO
+    // Actualiza un paciente existente seg\u00FAn su ID y los datos proporcionados en el DTO
     public pacienteDTO updatePaciente(Long id, pacienteDTO pacienteDto) {
-        Optional<paciente> opt = pacienteRepository.findById(id);
-        if (opt.isPresent()) {
-            paciente p = opt.get();
-            p.setNombre(pacienteDto.getNombre());
-            p.setEmail(pacienteDto.getEmail());
-            p.setTelefono(pacienteDto.getTelefono());
-            p.setRecordatoriosSuspendidos(pacienteDto.isRecordatoriosSuspendidos());
-            p = pacienteRepository.save(p);
-            return convertToDto(p);
+        try {
+            Optional<paciente> opt = pacienteRepository.findById(id);
+            if (opt.isPresent()) {
+                paciente p = opt.get();
+                p.setNombre(pacienteDto.getNombre());
+                p.setEmail(pacienteDto.getEmail());
+                p.setTelefono(pacienteDto.getTelefono());
+                p.setRecordatoriosSuspendidos(pacienteDto.isRecordatoriosSuspendidos());
+                p = pacienteRepository.save(p);
+                return convertToDto(p);
+            }
+            return null;
+        } catch (DataIntegrityViolationException e) {
+            System.err.println("Error: Duplicate entry for email or invalid phone format.");
+            throw new RuntimeException("El correo ya existe o el teléfono no cumple el formato.");
+        } catch (Exception e) {
+            System.err.println("Error actualizando paciente: " + e.getMessage());
+            throw new RuntimeException("Error actualizando el paciente.");
         }
-        return null;
     }
     
-    // Elimina un paciente según su ID
+    // Elimina un paciente seg\u00FAn su ID
     public void deletePaciente(Long id) {
-        pacienteRepository.deleteById(id);
+        try {
+            pacienteRepository.deleteById(id);
+        } catch (Exception e) {
+            System.err.println("Error eliminando paciente: " + e.getMessage());
+            throw new RuntimeException("Error eliminando el paciente.");
+        }
     }
     
-    // Cambia el estado de suspensión de los recordatorios para un paciente
+    // Cambia el estado de suspensi\u00F3n de los recordatorios para un paciente
     public pacienteDTO setSuspension(Long id, boolean suspendidos) {
-        Optional<paciente> opt = pacienteRepository.findById(id);
-        if (opt.isPresent()) {
-            paciente p = opt.get();
-            p.setRecordatoriosSuspendidos(suspendidos);
-            p = pacienteRepository.save(p);
-            return convertToDto(p);
+        try {
+            Optional<paciente> opt = pacienteRepository.findById(id);
+            if (opt.isPresent()) {
+                paciente p = opt.get();
+                p.setRecordatoriosSuspendidos(suspendidos);
+                p = pacienteRepository.save(p);
+                return convertToDto(p);
+            }
+            return null;
+        } catch (Exception e) {
+            System.err.println("Error actualizando el estado de recordatorios: " + e.getMessage());
+            throw new RuntimeException("Error actualizando el estado de recordatorios.");
         }
-        return null;
     }
 }

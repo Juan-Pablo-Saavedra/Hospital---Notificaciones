@@ -1,4 +1,4 @@
-const API_PACIENTES_URL = "http://localhost:8085/api/v1/pacientes";
+const API_PACIENTES_URL = "http://localhost:8085/api/pacientes";
 
 // Al cargar la página, se configura el envío del formulario.
 document.addEventListener("DOMContentLoaded", function () {
@@ -13,13 +13,14 @@ document.addEventListener("DOMContentLoaded", function () {
 function showAlert(message, type) {
   const alertContainer = document.getElementById("alert-container");
   alertContainer.textContent = message;
-  alertContainer.className = ""; // Limpia clases previas
+  alertContainer.className = ""; // Se limpian las clases previas.
   alertContainer.classList.add(type === "success" ? "alert-success" : "alert-error");
   alertContainer.style.display = "block";
-  // Forzar reflow para que la transición funcione
+
+  // Forzar reflow para que la transición funcione.
   void alertContainer.offsetWidth;
   alertContainer.style.opacity = 1;
-  
+
   // Después de 3 segundos, se desvanece el mensaje.
   setTimeout(() => {
     alertContainer.style.opacity = 0;
@@ -29,29 +30,29 @@ function showAlert(message, type) {
   }, 3000);
 }
 
-// Validación del email
+// Validación del email.
 function isValidEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 }
 
-// Validación del teléfono
+// Validación del teléfono: permite opcionalmente un '+' al inicio y luego solo dígitos.
 function isValidTelefono(telefono) {
   const telefonoRegex = /^\+?\d+$/;
   return telefonoRegex.test(telefono);
 }
 
-// Registrar un nuevo paciente
+// Registrar un nuevo paciente con manejo mejorado de excepciones.
 async function registerPaciente(event) {
-  event.preventDefault(); // Evitar el envío por defecto
+  event.preventDefault(); // Prevenir el envío por defecto.
 
-  // Obtener valores del formulario
+  // Obtener los valores de los campos.
   const nombre = document.getElementById("paciente-nombre").value.trim();
   const email = document.getElementById("paciente-email").value.trim();
   const telefono = document.getElementById("paciente-telefono").value.trim();
   const receiveNotifications = document.getElementById("paciente-receive-notifications").checked;
 
-  // Validaciones de campo
+  // Realizar validaciones básicas.
   if (!nombre) {
     showAlert("El nombre es obligatorio.", "error");
     return;
@@ -73,7 +74,7 @@ async function registerPaciente(event) {
     return;
   }
 
-  // Preparar el payload conforme al DTO:
+  // Preparar el payload conforme al DTO.
   // Si el paciente desea recibir notificaciones, recordatoriosSuspendidos será false.
   const payload = {
     nombre: nombre,
@@ -83,20 +84,52 @@ async function registerPaciente(event) {
   };
 
   try {
+    // Realizar la petición POST al backend.
     const response = await fetch(API_PACIENTES_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
-    if (!response.ok) {
-      throw new Error("Error al registrar el paciente.");
+    
+    // Determinar el método de parseo según el Content-Type.
+    const contentType = response.headers.get("Content-Type");
+    let data;
+    if (contentType && contentType.includes("application/json")) {
+      data = await response.json();
+    } else {
+      data = await response.text();
     }
-    const data = await response.json();
+    
+    // Si el response no es OK, se intenta extraer un mensaje amigable.
+    if (!response.ok) {
+      let errorMsg = "Error al registrar el paciente.";
+      if (data) {
+        if (typeof data === "object" && data.message) {
+          errorMsg = data.message;
+        } else if (typeof data === "string") {
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.message) {
+              errorMsg = parsed.message;
+            } else {
+              errorMsg = data;
+            }
+          } catch (parseErr) {
+            errorMsg = data;
+          }
+        }
+      }
+      // Imprimir en consola el error detallado.
+      console.error("Detalle del error:", data);
+      throw new Error(errorMsg);
+    }
+    
+    // Si todo sale bien, mostrar confirmación y limpiar el formulario.
     showAlert("Paciente registrado exitosamente.", "success");
-    // Limpiar el formulario
     document.getElementById("registroForm").reset();
   } catch (error) {
-    console.error("Error al registrar paciente:", error);
+    // En caso de error, se muestra solamente el mensaje amigable en consola y en la alerta.
+    console.error("Error al registrar paciente:", error.message);
     showAlert(error.message, "error");
   }
 }

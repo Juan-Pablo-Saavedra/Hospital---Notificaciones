@@ -1,86 +1,139 @@
+/* Variables para colores */
+:root {
+  --primary-color: #003366;
+  --primary-color-hover: #002244;
+  --secondary-color: #ffcc00;
+  --background-gradient-start: #141E30;
+  --background-gradient-end: #243B55;
+  --container-bg: #ffffff;
+  --alert-success-bg: #d4edda;
+  --alert-success-border: #c3e6cb;
+  --alert-success-text: #155724;
+  --alert-error-bg: #f8d7da;
+  --alert-error-border: #f5c6cb;
+  --alert-error-text: #721c24;
+}
+
 /* Reset y estilos base */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+html, body {
+  height: 100%;
 }
 
 body {
-  background-color: #f2f2f2;
+  background: linear-gradient(135deg, var(--background-gradient-start), var(--background-gradient-end));
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 20px;
 }
 
-/* Contenedor principal */
+/* Contenedor principal estilizado y centrado */
 .container {
+  background-color: var(--container-bg);
+  border: 2px solid var(--primary-color);
+  border-radius: 15px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  padding: 40px;
+  width: 100%;
   max-width: 500px;
-  margin: 0 auto;
-  background-color: #fff;
-  border-radius: 5px;
-  padding: 30px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.8s ease-out;
 }
 
-/* Título */
+/* Animación para el contenedor */
+@keyframes slideIn {
+  from {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Título con mayor contraste y estilo */
 h2 {
   text-align: center;
-  margin-bottom: 20px;
-  color: #007BFF;
+  margin-bottom: 30px;
+  color: var(--primary-color);
+  font-size: 28px;
+  font-weight: bold;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-/* Grupos de formulario */
+/* Estilos para los grupos de formulario */
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   font-weight: bold;
   color: #333;
+  font-size: 17px;
 }
 
 .form-group input[type="text"],
 .form-group input[type="email"] {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 3px;
-  transition: border-color 0.3s;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .form-group input[type="text"]:focus,
 .form-group input[type="email"]:focus {
-  border-color: #007BFF;
+  border-color: var(--primary-color);
+  box-shadow: 0 3px 12px rgba(0, 51, 102, 0.3);
   outline: none;
 }
 
-/* Checkbox */
+/* Estilo para el checkbox */
 .checkbox-group {
   display: flex;
   align-items: center;
+  margin-bottom: 20px;
 }
 
 .checkbox-group input[type="checkbox"] {
   margin-right: 10px;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
 }
 
-/* Botón */
+.checkbox-group label {
+  font-size: 16px;
+  color: #333;
+}
+
+/* Botón con gradiente, sombra y efecto de hover */
 button[type="submit"] {
   width: 100%;
-  padding: 12px;
+  padding: 15px;
   border: none;
-  background-color: #007BFF;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-color-hover));
   color: #fff;
   font-weight: bold;
-  font-size: 16px;
-  border-radius: 3px;
+  font-size: 18px;
+  border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: transform 0.2s ease, background 0.3s ease;
 }
 
 button[type="submit"]:hover {
-  background-color: #0056b3;
+  background: linear-gradient(135deg, var(--primary-color-hover), var(--primary-color));
+  transform: scale(1.03);
 }
 
 /* Estilos para errores en cada input */
@@ -91,7 +144,7 @@ button[type="submit"]:hover {
   display: block;
 }
 
-/* Contenedor de alerta personalizado */
+/* Contenedor de alerta personalizado, con efecto de fade in/out */
 #alert-container {
   display: none;
   padding: 15px;
@@ -103,15 +156,14 @@ button[type="submit"]:hover {
   transition: opacity 0.5s ease;
 }
 
-/* Clases para tipos de alerta */
 .alert-success {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+  background-color: var(--alert-success-bg);
+  color: var(--alert-success-text);
+  border: 1px solid var(--alert-success-border);
 }
 
 .alert-error {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  background-color: var(--alert-error-bg);
+  color: var(--alert-error-text);
+  border: 1px solid var(--alert-error-border);
 }
