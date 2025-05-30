@@ -1,0 +1,299 @@
+/* ==================================== */
+/*       VARIABLES DE ESTILO            */
+/* ==================================== */
+:root {
+  --primary-color: #0056b3;         /* Azul profundo para elementos clave */
+  --secondary-color: #00aaff;       /* Azul vibrante para acentos */
+  --accent-color: #ff6600;          /* Naranja para efectos hover y acentos */
+  --background-color: #f2f2f2;       /* Fondo claro para contenedores y cards */
+  --dark-bg: #222222;              /* Fondo oscuro general */
+  --text-color: #333333;            /* Texto principal */
+  --header-bg: #ffffff;             /* Fondo del header */
+  --table-header-bg: var(--primary-color);
+  --table-header-text: #ffffff;
+  --table-row-hover: #e6e6e6;
+  --form-bg: #ffffff;
+  --form-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  --alert-success-bg: #28a745;
+  --alert-error-bg: #dc3545;
+  --alert-text: #ffffff;
+}
+
+/* ==================================== */
+/*           RESET Y BASE               */
+/* ==================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+  padding: 20px;
+  color: var(--text-color);
+  font-size: 16px;
+}
+
+/* ==================================== */
+/*           HEADER Y NAVEGACIÓN         */
+/* ==================================== */
+header { 
+  background: var(--header-bg);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+header h1 {
+  color: var(--primary-color);
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+nav ul {
+  list-style: none;
+  display: inline-flex;
+  gap: 24px;
+}
+
+nav ul li a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s;
+}
+
+nav ul li a:hover {
+  color: var(--accent-color);
+}
+
+/* ==================================== */
+/*           CONTENEDOR PRINCIPAL       */
+/* ==================================== */
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* ==================================== */
+/*       SECCIÓN: TABLA DE MEDICAMENTOS  */
+/* ==================================== */
+#medicamento-section {
+  background: var(--background-color);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+#medicamento-section h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  text-align: center;
+  color: var(--primary-color);
+}
+
+#medicamento-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+#medicamento-table th,
+#medicamento-table td {
+  padding: 16px;
+  text-align: left;
+  border: none;
+}
+
+#medicamento-table th {
+  background: var(--table-header-bg);
+  color: var(--table-header-text);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+#medicamento-table tbody tr {
+  border-bottom: 1px solid #ddd;
+  transition: background 0.3s;
+}
+
+#medicamento-table tbody tr:hover {
+  background: var(--table-row-hover);
+}
+
+/* ==================================== */
+/*   SECCIÓN: FORMULARIO AGREGAR MED.   */
+/* ==================================== */
+#add-medicamento-section {
+  background: var(--background-color);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+#add-medicamento-section h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  text-align: center;
+  color: var(--primary-color);
+}
+
+form#addMedicamentoForm {
+  background: var(--form-bg);
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: var(--form-shadow);
+}
+
+/* Cada grupo del formulario */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.form-group input[type="text"],
+.form-group input[type="time"] {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border 0.3s, box-shadow 0.3s;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="time"]:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  outline: none;
+}
+
+/* Para el campo de horario, solo se permite un input */
+#horario-field {
+  width: 100%;
+}
+
+/* Botón de envío: ahora en blanco con borde principal */
+button[type="submit"] {
+  width: 100%;
+  padding: 16px;
+  background: var(--light-color);
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease;
+  margin-top: 10px;
+}
+
+button[type="submit"]:hover {
+  background: var(--primary-color);
+  color: var(--light-color);
+  transform: scale(1.03);
+}
+
+/* ==================================== */
+/*      SECCIÓN: CONFIGURACIÓN DE NOTIFICACIONES */
+/* ==================================== */
+#notification-config {
+  background: var(--background-color);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+#notification-config h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  text-align: center;
+  color: var(--primary-color);
+}
+
+form#notificationForm {
+  background: var(--form-bg);
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: var(--form-shadow);
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.checkbox-group label {
+  font-size: 16px;
+  color: var(--primary-color);
+  user-select: none;
+}
+
+/* ==================================== */
+/*         ALERTAS DEL PANEL           */
+/* ==================================== */
+#panel-alert-container {
+  display: none;
+  padding: 16px;
+  margin-top: 20px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 18px;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.alert-success {
+  background: var(--alert-success-bg);
+  color: var(--alert-text);
+}
+
+.alert-error {
+  background: var(--alert-error-bg);
+  color: var(--alert-text);
+}
+
+.form-group input[type="time"] {
+  width: 100%;
+  padding: 10px;               /* Reduce un poco el padding para que el selector esté más cerca */
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;             /* Indica al usuario que es clickeable */
+  background-color: #fff;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group input[type="time"]:focus {
+  border-color: var(--primary-color);  /* Usando tu variable o un color similar */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  outline: none;
+}

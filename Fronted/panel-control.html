@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Panel de Control - Medicamentos</title>
+    <!-- Vincula el CSS del panel de control -->
+    <link rel="stylesheet" href="/css/control-panel.css">
+</head>
+
+<body>
+    <!-- HEADER Y NAVEGACIÓN -->
+    <header>
+        <h1>Panel de Control</h1>
+        <nav>
+            <ul>
+                <li><a href="#">Inicio</a></li>
+                <li><a href="#">Medicamentos</a></li>
+                <li><a href="#">Cerrar Sesión</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main>
+        <!-- Sección: Tabla de Medicamentos -->
+        <section id="medicamento-section">
+            <h2>Mis Medicamentos</h2>
+            <table id="medicamento-table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Dosis</th>
+                        <th>Horario</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Los registros se cargarán dinámicamente desde el JavaScript -->
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Sección: Agregar/Actualizar Medicamento -->
+        <section id="add-medicamento-section">
+            <h2>Agregar Medicamento</h2>
+            <form id="addMedicamentoForm">
+                <div class="form-group">
+                    <label for="medicamento-nombre">Nombre del Medicamento:</label>
+                    <input type="text" id="medicamento-nombre" placeholder="Ej. Aspirina" required>
+                </div>
+                <div class="form-group">
+                    <label for="medicamento-dosis">Dosis:</label>
+                    <input type="text" id="medicamento-dosis" placeholder="Ej. 500mg" required>
+                </div>
+                <div class="form-group">
+                    <label for="horario-field">Horario (HH:mm):</label>
+                    <!-- Se agrega onkeydown y onpaste para evitar la escritura manual -->
+                    <input type="time" id="horario-field" onkeydown="return false;" onpaste="return false;" required>
+                </div>
+
+                <button type="submit">Agregar Medicamento</button>
+            </form>
+        </section>
+
+        <!-- Contenedor para Alertas de mensajes (éxito o error) -->
+        <div id="panel-alert-container"></div>
+    </main>
+
+    <!-- Vinculación del JavaScript para gestionar el panel -->
+    <script src="/js/control-panel.js"></script>
+</body>
+
+</html>
