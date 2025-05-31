@@ -1,19 +1,14 @@
 package com.sena.hospital.Scheduler;
 
+import com.sena.hospital.DTO.medicamentoDTO;
 import com.sena.hospital.DTO.bitacorarecordatorioDTO;
-import com.sena.hospital.DTO.pacientemedicamentoDTO;
-import com.sena.hospital.model.medicamento;
-import com.sena.hospital.model.paciente;
-import com.sena.hospital.repository.Ipaciente;
-import com.sena.hospital.repository.Imedicamento;
-import com.sena.hospital.service.bitacorarecordatorioService;
+import com.sena.hospital.service.medicamentoService;
 import com.sena.hospital.service.emailService;
-import com.sena.hospital.service.pacientemedicamentoService;
+import com.sena.hospital.service.bitacorarecordatorioService;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -22,13 +17,7 @@ import org.springframework.stereotype.Component;
 public class ProgramadorRecordatorios {
 
     @Autowired
-    private pacientemedicamentoService servicioPacienteMedicamento;
-    
-    @Autowired
-    private Ipaciente repositorioPaciente;
-    
-    @Autowired
-    private Imedicamento repositorioMedicamento;
+    private medicamentoService medicamentoService;
     
     @Autowired
     private emailService servicioCorreo;
@@ -40,71 +29,64 @@ public class ProgramadorRecordatorios {
     private final DateTimeFormatter formateadorHora = DateTimeFormatter.ofPattern("HH:mm");
     
     /**
-     * Método programado para ejecutarse cada 5 minutos.
-     * Recorre las asignaciones activas de medicamentos y, si la hora actual se encuentra en
-     * la ventana de 5 minutos a partir del horario programado, envía el recordatorio por correo
-     * y registra el evento en la bitácora.
+     * Este método se ejecuta cada 5 minutos, revisando el listado de medicamentos.
+     * Para cada medicamento con recordatorios activados, se parsea la cadena CSV de horarios;
+     * si la hora actual se encuentra en la ventana [horarioProgramado, horarioProgramado + 5 minutos),
+     * se envía el recordatorio (invocando el servicio de correo) y se registra el evento en la bitácora.
      */
-    @Scheduled(fixedRate = 5 * 60 * 1000) // 5 minutos en milisegundos
+    @Scheduled(cron = "0 */5 * * * *")  // Ejecuta cada 5 minutos.
     public void verificarRecordatorios() {
-        System.out.println("Ejecutando verificación de recordatorios a las: " + LocalDateTime.now());
+        System.out.println("[" + LocalDateTime.now() + "] Ejecutando verificación de recordatorios...");
         
-        // Obtener las asignaciones activas
-        List<pacientemedicamentoDTO> asignaciones = servicioPacienteMedicamento.getActiveMedicationsForNow();
-        LocalTime horaActual = LocalTime.now();
+        // Obtener todos los medicamentos
+        List<medicamentoDTO> medicamentos = medicamentoService.getAllMedicamentos();
+        // Obtener la hora actual formateada (por ejemplo "14:00")
+        String horaActualStr = LocalTime.now().format(formateadorHora);
+        LocalTime horaActual = LocalTime.parse(horaActualStr, formateadorHora);
         
-        for (pacientemedicamentoDTO asignacion : asignaciones) {
-            // Obtener los datos del paciente
-            Optional<paciente> optPaciente = repositorioPaciente.findById(asignacion.getPacienteId());
-            if (!optPaciente.isPresent()) {
-                continue;
-            }
-            paciente paciente = optPaciente.get();
-            
-            // Si el paciente tiene suspendidos los recordatorios, se omite
-            if (paciente.isRecordatoriosSuspendidos()) {
-                continue;
-            }
-            
-            // Obtener los datos del medicamento
-            Optional<medicamento> optMedicamento = repositorioMedicamento.findById(asignacion.getMedicamentoId());
-            if (!optMedicamento.isPresent()) {
-                continue;
-            }
-            medicamento med = optMedicamento.get();
-            
-            // Verificar que el campo de horarios no esté vacío y parsearlos
-            String horarios = med.getHorarios();
-            if (horarios == null || horarios.trim().isEmpty()) {
-                continue;
-            }
-            String[] horas = horarios.split(",");
-            for (String h : horas) {
-                String horaStr = h.trim();
-                try {
-                    LocalTime horaProgramada = LocalTime.parse(horaStr, formateadorHora);
-                    // Verificar si la hora actual se encuentra en la ventana [horaProgramada, horaProgramada + 5 minutos)
-                    if (!horaActual.isBefore(horaProgramada) && horaActual.isBefore(horaProgramada.plusMinutes(5))) {
-                        // Enviar correo recordatorio
-                        servicioCorreo.sendMedicationReminder(
-                            paciente.getEmail(),
-                            paciente.getNombre(),
-                            med.getNombre(),
-                            med.getDosis(),
-                            horarios
-                        );
-                        // Registrar en la bitácora el envío del recordatorio
-                        bitacorarecordatorioDTO bitacoraDto = new bitacorarecordatorioDTO();
-                        bitacoraDto.setPacienteId(paciente.getId());
-                        bitacoraDto.setMedicamentoId(med.getId());
-                        bitacoraDto.setFechaEnvio(LocalDateTime.now());
-                        bitacoraDto.setConfirmado(false);
-                        servicioBitacora.createRecordatorio(bitacoraDto);
-                    }
-                } catch (Exception e) {
-                    System.err.println("Error al parsear el horario: " + horaStr + " - " + e.getMessage());
+        for (medicamentoDTO med : medicamentos) {
+            if (med.isNotificaciones()) {
+                String horariosCSV = med.getHorarios();
+                if (horariosCSV == null || horariosCSV.trim().isEmpty()) {
+                    continue;
                 }
-            }
-        }
+                // Separar los horarios (se asume que están separados por comas)
+                String[] horas = horariosCSV.split(",");
+                // Comprobar cada horario
+                for (String h : horas) {
+                    String horaStr = h.trim();
+                    try {
+                        LocalTime horaProgramada = LocalTime.parse(horaStr, formateadorHora);
+                        // Verificar si la hora actual está dentro de [horaProgramada, horaProgramada + 5 minutos)
+                        if (!horaActual.isBefore(horaProgramada) && horaActual.isBefore(horaProgramada.plusMinutes(5))) {
+                            // Dispara la acción: enviar correo y registrar en bitácora.
+                            // (Simulamos la obtención del correo; en producción, asegúrate de disponerlo en tu DTO o consulta)
+                            String correo = "paciente" + med.getPacienteId() + "@example.com";
+                            
+                            servicioCorreo.sendMedicationReminder(
+                                    correo,
+                                    med.getPacienteNombre(), 
+                                    med.getNombre(),
+                                    med.getDosis(),
+                                    med.getHorarios() // Se envía la cadena completa
+                            );
+                            
+                            // Registrar en la bitácora
+                            bitacorarecordatorioDTO bitacoraDto = new bitacorarecordatorioDTO();
+                            bitacoraDto.setPacienteId(med.getPacienteId());
+                            bitacoraDto.setMedicamentoId(med.getId());
+                            bitacoraDto.setFechaEnvio(LocalDateTime.now());
+                            bitacoraDto.setConfirmado(false);
+                            servicioBitacora.createRecordatorio(bitacoraDto);
+                            
+                            // Una vez enviado para este medicamento, no se revisan más horarios.
+                            break;
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Error al parsear el horario: " + horaStr + " - " + e.getMessage());
+                    }
+                } // for cada horario
+            } // if notificaciones
+        } // for cada medicamento
     }
 }

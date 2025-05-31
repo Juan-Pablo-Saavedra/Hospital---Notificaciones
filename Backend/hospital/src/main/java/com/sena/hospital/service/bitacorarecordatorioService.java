@@ -4,7 +4,9 @@ import com.sena.hospital.DTO.bitacorarecordatorioDTO;
 import com.sena.hospital.model.bitacorarecordatorio;
 import com.sena.hospital.repository.Ibitacorarecordatorio;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,18 +22,22 @@ public class bitacorarecordatorioService {
     private bitacorarecordatorioDTO convertToDto(bitacorarecordatorio br) {
         bitacorarecordatorioDTO dto = new bitacorarecordatorioDTO();
         dto.setId(br.getId());
-        dto.setPacienteId(br.getPaciente().getId());
-        dto.setMedicamentoId(br.getMedicamento().getId());
+        dto.setPacienteId(br.getPacienteId());
+        dto.setMedicamentoId(br.getMedicamentoId());
         dto.setFechaEnvio(br.getFechaEnvio());
         dto.setConfirmado(br.isConfirmado());
+        dto.setObservacion(br.getObservacion());
         return dto;
     }
     
     // Convierte el DTO a entidad
     private bitacorarecordatorio convertToEntity(bitacorarecordatorioDTO dto) {
         bitacorarecordatorio br = new bitacorarecordatorio();
+        br.setPacienteId(dto.getPacienteId());
+        br.setMedicamentoId(dto.getMedicamentoId());
         br.setFechaEnvio(dto.getFechaEnvio());
         br.setConfirmado(dto.isConfirmado());
+        br.setObservacion(dto.getObservacion());
         return br;
     }
     
@@ -58,10 +64,11 @@ public class bitacorarecordatorioService {
     // Actualiza un registro existente
     public bitacorarecordatorioDTO updateRecordatorio(Long id, bitacorarecordatorioDTO dto) {
         Optional<bitacorarecordatorio> opt = bitacoraRepo.findById(id);
-        if (opt.isPresent()) {
+        if(opt.isPresent()){
             bitacorarecordatorio br = opt.get();
             br.setFechaEnvio(dto.getFechaEnvio());
             br.setConfirmado(dto.isConfirmado());
+            br.setObservacion(dto.getObservacion());
             br = bitacoraRepo.save(br);
             return convertToDto(br);
         }
@@ -73,7 +80,7 @@ public class bitacorarecordatorioService {
         bitacoraRepo.deleteById(id);
     }
     
-    // Obtiene los registros de recordatorios para un paciente específico
+    // Obtiene los registros para un paciente específico
     public List<bitacorarecordatorioDTO> getRecordatoriosByPacienteId(Long pacienteId) {
         return bitacoraRepo.findByPacienteId(pacienteId).stream()
                 .map(this::convertToDto)
@@ -90,12 +97,35 @@ public class bitacorarecordatorioService {
     // Confirma un recordatorio dado su ID
     public bitacorarecordatorioDTO confirmRecordatorio(Long id) {
         Optional<bitacorarecordatorio> opt = bitacoraRepo.findById(id);
-        if (opt.isPresent()) {
+        if(opt.isPresent()){
             bitacorarecordatorio br = opt.get();
             br.setConfirmado(true);
             br = bitacoraRepo.save(br);
             return convertToDto(br);
         }
         return null;
+    }
+    
+    // Nuevo método: Confirma todos los recordatorios (no confirmados) para el día actual de un paciente para un medicamento determinado.
+    public void confirmRecordatoriosForToday(Long pacienteId, Long medicamentoId) {
+        LocalDateTime startOfDay = LocalDateTime.now().with(LocalTime.MIDNIGHT);
+        LocalDateTime startOfNextDay = startOfDay.plusDays(1);
+        List<bitacorarecordatorio> records = bitacoraRepo.findByPacienteId(pacienteId).stream()
+                .filter(br -> br.getMedicamentoId().equals(medicamentoId)
+                        && br.getFechaEnvio().isAfter(startOfDay)
+                        && br.getFechaEnvio().isBefore(startOfNextDay)
+                        && !br.isConfirmado())
+                .collect(Collectors.toList());
+        for(bitacorarecordatorio br : records) {
+            br.setConfirmado(true);
+            bitacoraRepo.save(br);
+        }
+    }
+    
+    // Nuevo método: Retorna un contador de recordatorios enviados, agrupados por pacienteId.
+    public Map<Long, Long> countRecordatoriosByPaciente() {
+        List<bitacorarecordatorio> records = bitacoraRepo.findAll();
+        return records.stream()
+                .collect(Collectors.groupingBy(bitacorarecordatorio::getPacienteId, Collectors.counting()));
     }
 }

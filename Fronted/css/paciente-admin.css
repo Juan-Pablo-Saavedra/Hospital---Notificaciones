@@ -1,0 +1,35 @@
+/* crud-style.css */
+
+/* Estilos generales */
+body {
+    background-color: #f8f9fa;
+    font-family: Arial, sans-serif;
+}
+
+/* Panel de administración */
+.admin-panel {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Barra de navegación (ajusta según tus necesidades) */
+.navbar-clinica {
+    background-color: #007bff;
+}
+
+.navbar-clinica .navbar-brand,
+.navbar-clinica .nav-link {
+    color: #fff !important;
+}
+
+/* Formularios y tables */
+.filter-input {
+    margin-bottom: 10px;
+}
+
+.table thead tr {
+    background-color: #007bff;
+    color: #fff;
+}

@@ -11,22 +11,27 @@ public class bitacorarecordatorio {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "paciente_id", nullable = false)
-    private paciente paciente;
+    // ID del paciente al que se envió el recordatorio
+    @Column(nullable = false)
+    private Long pacienteId;
 
-    @ManyToOne
-    @JoinColumn(name = "medicamento_id", nullable = false)
-    private medicamento medicamento;
-    
-    // Representa la fecha y hora en que se envió el recordatorio
+    // ID del medicamento relacionado al recordatorio
+    @Column(nullable = false)
+    private Long medicamentoId;
+
+    // Fecha y hora en que se envió el recordatorio
+    @Column(nullable = false)
     private LocalDateTime fechaEnvio;
-    
-    // Indica si el paciente confirmó la toma del medicamento
+
+    // Indica si el recordatorio fue confirmado (por ejemplo, mediante la acción del paciente)
+    @Column(nullable = false)
     private boolean confirmado;
 
-    // Getters y Setters
+    // Campo opcional para observaciones o mensajes del envío
+    @Column
+    private String observacion;
 
+    // Getters y Setters
     public Long getId() {
         return id;
     }
@@ -35,20 +40,20 @@ public class bitacorarecordatorio {
         this.id = id;
     }
 
-    public paciente getPaciente() {
-        return paciente;
+    public Long getPacienteId() {
+        return pacienteId;
     }
 
-    public void setPaciente(paciente paciente) {
-        this.paciente = paciente;
+    public void setPacienteId(Long pacienteId) {
+        this.pacienteId = pacienteId;
     }
 
-    public medicamento getMedicamento() {
-        return medicamento;
+    public Long getMedicamentoId() {
+        return medicamentoId;
     }
 
-    public void setMedicamento(medicamento medicamento) {
-        this.medicamento = medicamento;
+    public void setMedicamentoId(Long medicamentoId) {
+        this.medicamentoId = medicamentoId;
     }
 
     public LocalDateTime getFechaEnvio() {
@@ -66,5 +71,12 @@ public class bitacorarecordatorio {
     public void setConfirmado(boolean confirmado) {
         this.confirmado = confirmado;
     }
+
+    public String getObservacion() {
+        return observacion;
+    }
+
+    public void setObservacion(String observacion) {
+        this.observacion = observacion;
+    }
 }
-// Este modelo representa un registro de recordatorio enviado a un paciente para tomar su medicamento.

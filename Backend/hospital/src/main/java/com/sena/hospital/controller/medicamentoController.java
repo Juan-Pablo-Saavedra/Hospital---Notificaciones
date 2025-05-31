@@ -16,16 +16,16 @@ public class medicamentoController {
     
     // Listar todos los medicamentos
     @GetMapping
-    public ResponseEntity<List<medicamentoDTO>> getAll() {
+    public ResponseEntity<List<medicamentoDTO>> getAllMedicamentos() {
         List<medicamentoDTO> meds = medicamentoService.getAllMedicamentos();
         return ResponseEntity.ok(meds);
     }
     
     // Obtener medicamento por ID
     @GetMapping("/{id}")
-    public ResponseEntity<medicamentoDTO> getById(@PathVariable Long id) {
+    public ResponseEntity<medicamentoDTO> getMedicamentoById(@PathVariable Long id) {
         medicamentoDTO dto = medicamentoService.getMedicamentoById(id);
-        if (dto == null) {
+        if(dto == null) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(dto);
@@ -33,16 +33,16 @@ public class medicamentoController {
     
     // Crear nuevo medicamento
     @PostMapping
-    public ResponseEntity<medicamentoDTO> create(@RequestBody medicamentoDTO dto) {
+    public ResponseEntity<medicamentoDTO> createMedicamento(@RequestBody medicamentoDTO dto) {
         medicamentoDTO created = medicamentoService.createMedicamento(dto);
         return ResponseEntity.ok(created);
     }
     
-    // Actualizar medicamento
+    // Actualizar medicamento existente
     @PutMapping("/{id}")
-    public ResponseEntity<medicamentoDTO> update(@PathVariable Long id, @RequestBody medicamentoDTO dto) {
+    public ResponseEntity<medicamentoDTO> updateMedicamento(@PathVariable Long id, @RequestBody medicamentoDTO dto) {
         medicamentoDTO updated = medicamentoService.updateMedicamento(id, dto);
-        if (updated == null) {
+        if(updated == null) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(updated);
@@ -50,7 +50,7 @@ public class medicamentoController {
     
     // Eliminar medicamento
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<?> deleteMedicamento(@PathVariable Long id) {
         medicamentoService.deleteMedicamento(id);
         return ResponseEntity.ok().build();
     }
